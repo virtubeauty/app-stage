@@ -1,0 +1,158 @@
+﻿/* sidebar.css */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 300px;
+    height: 100vh;
+    background: var(--card-bg);
+    box-shadow: 4px 0 10px var(--shadow);
+    transition: left 0.3s ease;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
+    .sidebar.active {
+        left: 0;
+    }
+
+/* Hamburger Button */
+.hamburger-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: var(--card-bg);
+    border: 2px solid var(--accent-1);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    z-index: 1001;
+    transition: all 0.3s ease;
+}
+
+    .hamburger-btn:hover {
+        background: var(--accent-1);
+    }
+
+    .hamburger-btn span {
+        width: 24px;
+        height: 2px;
+        background: var(--text-primary);
+        transition: all 0.3s ease;
+    }
+
+    .hamburger-btn:hover span {
+        background: white;
+    }
+
+    .hamburger-btn.active span:nth-child(1) {
+        transform: translateY(8px) rotate(45deg);
+    }
+
+    .hamburger-btn.active span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .hamburger-btn.active span:nth-child(3) {
+        transform: translateY(-8px) rotate(-45deg);
+    }
+
+/* Sidebar Header */
+.sidebar-header {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo {
+    width: 120px;
+    height: auto;
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+    padding: 20px;
+    flex: 1;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    border-radius: 12px;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+    .nav-item:hover {
+        background: var(--accent-1);
+        color: white;
+    }
+
+    .nav-item.active {
+        background: var(--accent-1);
+        color: white;
+    }
+
+    .nav-item .tab-count {
+        margin-left: auto;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+    }
+
+/* Overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 999;
+}
+
+    .sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+/* Dark Mode Adjustments */
+[data-theme="dark"] .sidebar {
+    background: var(--card-bg);
+    border-right: 1px solid var(--border);
+}
+
+[data-theme="dark"] .hamburger-btn {
+    background: var(--card-bg);
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .sidebar {
+        width: 280px;
+    }
+
+    .hamburger-btn {
+        top: 10px;
+        left: 10px;
+    }
+}

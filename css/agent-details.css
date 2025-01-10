@@ -1,0 +1,329 @@
+﻿/* Agent Details Modal */
+.details-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+    .details-modal.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+.details-content {
+    background: var(--card-bg);
+    border-radius: 16px;
+    width: 95%;
+    max-width: 1200px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.details-modal.active .details-content {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+.details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+    .details-header h3 {
+        margin: 0;
+        font-size: 1.4em;
+        color: var(--text-primary);
+    }
+
+    .details-header .agent-symbol {
+        color: var(--text-secondary);
+        font-size: 0.8em;
+        margin-left: 8px;
+    }
+
+.details-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-primary);
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+    .details-close:hover {
+        background: var(--accent-1);
+        color: white;
+    }
+
+.details-body {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    min-height: 600px;
+}
+
+.chart-section {
+    flex: 3;
+    height: 600px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.chart-container {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.holders-section {
+    flex: 1;
+    min-width: 300px;
+    border-radius: 12px;
+    background: var(--background);
+    padding: 20px;
+}
+
+.holders-title {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+.holders-list {
+    display: grid;
+    gap: 10px;
+    max-height: 520px;
+    overflow-y: auto;
+}
+
+.holder-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.holder-address {
+    font-family: monospace;
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.holder-percentage {
+    padding: 4px 8px;
+    background: var(--accent-1);
+    color: white;
+    border-radius: 6px;
+    font-size: 0.9em;
+}
+
+.dev-indicator {
+    margin-left: 8px;
+    font-size: 1.2em;
+}
+
+/* View Details Button */
+.view-details-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    background: var(--accent-1);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+    .view-details-btn:hover {
+        background: var(--button-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px var(--shadow);
+    }
+
+    .view-details-btn .details-icon {
+        font-size: 1.2em;
+    }
+
+
+/* Scrollbar Styles */
+.details-content::-webkit-scrollbar,
+.holders-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.details-content::-webkit-scrollbar-track,
+.holders-list::-webkit-scrollbar-track {
+    background: var(--background);
+}
+
+.details-content::-webkit-scrollbar-thumb,
+.holders-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+    .details-content::-webkit-scrollbar-thumb:hover,
+    .holders-list::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-1);
+    }
+
+/* Add to agent-details.css */
+.influence-metrics {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.metric-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 150px;
+    padding: 10px;
+    background: rgba(var(--accent-1-rgb), 0.1);
+    border-radius: 8px;
+}
+
+.metric-label {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    margin-bottom: 5px;
+}
+
+.metric-value {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+    .metrics-section {
+        gap: 10px;
+        padding: 15px;
+    }
+
+    .metric-item {
+        min-width: calc(50% - 10px);
+        padding: 8px;
+    }
+}
+
+/* Responsive Design */
+@media screen and (max-width: 1024px) {
+    .details-body {
+        flex-direction: column;
+    }
+
+    .chart-section {
+        height: 400px;
+    }
+
+    .holders-section {
+        min-width: 100%;
+    }
+
+    .holders-list {
+        max-height: 300px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .details-modal {
+        padding: 0;
+    }
+
+    .details-content {
+        width: 100%;
+        height: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+
+    .details-body {
+        padding: 10px;
+    }
+
+    .chart-section {
+        height: 75vh;
+    }
+
+    .chart-container {
+        height: 50vh;
+    }
+
+    .holders-section {
+        padding: 15px;
+    }
+
+    .holders-list {
+        max-height: calc(20vh - 60px);
+        overflow-y: auto;
+    }
+
+    .details-header {
+        padding: 15px;
+    }
+
+        .details-header h3 {
+            font-size: 1.2em;
+        }
+
+    .holder-item {
+        padding: 10px;
+    }
+}
+
+/* Additional mobile optimization for smaller screens */
+@media screen and (max-width: 480px) {
+    .chart-section {
+        height: 70vh;
+    }
+
+    .chart-container {
+        height: 50vh;
+    }
+}

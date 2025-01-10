@@ -45,8 +45,8 @@ const API_CONFIG = {
         }
     },
     virtubeautyapi: {
-        //baseUrl: 'https://localhost:7162',
-        baseUrl: 'https://virtubeauty-stage-c3bsgrc7gpd9f0e9.germanywestcentral-01.azurewebsites.net/',
+        //baseUrl: 'https://localhost:7162', // local
+        baseUrl: 'https://virtubeauty-stage-c3bsgrc7gpd9f0e9.germanywestcentral-01.azurewebsites.net',
         endpoints: {
             upvote: '/api/voting/upvote',
             downvote: '/api/voting/downvote',

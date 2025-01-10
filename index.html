@@ -15,7 +15,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Virtuals Agents Hub - Making virtual agents easier, practical, and useful for everyone. Explore our prototype, latest, and sentient virtual agents.">
+          content="Virtuals Agents Hub - Making virtual agents easier, practical, and useful for everyone. Explore our prototype, latest, and sentient virtual agents.">
     <meta name="keywords" content="virtual agents, AI agents, virtubeauty.fun, virtual assistants, AI prototype">
     <meta name="author" content="virtubeauty.fun">
     <meta name="robots" content="index, follow">
@@ -24,7 +24,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="VirtuBeauty Agents Hub - Making Virtual Easier">
     <meta property="og:description"
-        content="Explore and interact with virtual agents. Making virtual easier, practical, and useful for everyone.">
+          content="Explore and interact with virtual agents. Making virtual easier, practical, and useful for everyone.">
     <meta property="og:url" content="https://app.virtubeauty.fun/">
 
     <!-- Twitter Card Meta Tags -->
@@ -38,7 +38,7 @@
     <!-- Preload critical CSS -->
     <link rel="preload" href="css/base.css?v=2" as="style">
     <link rel="preload" href="css/components.css?v=2" as="style">
-    
+
     <script src="/js/web3.min.js"></script>
 
 
@@ -58,8 +58,10 @@
     <link rel="stylesheet" href="css/auth.css?v=7">
     <link rel="stylesheet" href="css/share-favorites.css?v=7">
     <link rel="stylesheet" href="css/voting.css?v=8">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/agent-details.css">
 
-    
+
     <!-- JavaScript Files - Load in specific order -->
     <script src="js/config.js?v=7"></script>
     <script src="js/utils.js?v=7"></script>
@@ -75,6 +77,8 @@
     <script src="js/voting.js?v=8"></script>
     <script src="js/auth.js?v=8"></script>
     <script src="js/share-favorites.js?v=7"></script>
+    <script src="js/sidebar.js"></script>
+    <!--<script src="js/agent-details.js"></script>-->
 
     <!-- Favicon -->
     <link rel="icon" href="assets/favicon.ico">
@@ -106,30 +110,6 @@
             <button class="clear-search">Clear Search</button>
         </div>
         <div class="search-results-grid"></div>
-    </div>
-
-    <div class="tabs-container">
-        <div class="tabs-header">
-            <div class="tabs">
-                <button class="tab-button active" data-tab="favorites">
-                    <span class="tab-icon">⭐</span>
-                    <span class="tab-text hide-mobile">Favorites</span>
-                    <span class="tab-count" id="favoritesCount">0</span>
-                </button>
-                <button class="tab-button" data-tab="prototype">
-                    <span class="tab-icon">🤖</span>
-                    <span class="tab-text hide-mobile">Prototype</span>
-                </button>
-                <button class="tab-button" data-tab="latest">
-                    <span class="tab-icon">🐣</span>
-                    <span class="tab-text hide-mobile">Latest</span>
-                </button>
-                <button class="tab-button" data-tab="sentient">
-                    <span class="tab-icon">🧠</span>
-                    <span class="tab-text hide-mobile">Sentient</span>
-                </button>
-            </div>
-        </div>
     </div>
 
     <main id="content">
