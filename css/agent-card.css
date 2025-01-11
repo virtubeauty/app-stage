@@ -219,3 +219,164 @@
         justify-content: center;
     }
 }
+
+/* Add to agent-card.css */
+
+/* Update in agent-card.css */
+
+.trading-stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px;
+    background: rgba(var(--accent-1-rgb), 0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(var(--accent-1-rgb), 0.1);
+}
+
+.trading-metric {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px;
+    border-radius: 6px;
+    background: var(--card-bg);
+    transition: all 0.2s ease;
+    min-width: 80px;
+    position: relative;
+    cursor: help;
+}
+
+.trading-metric:hover {
+    transform: translateY(-2px);
+    background: rgba(var(--accent-1-rgb), 0.05);
+}
+
+.trading-metric:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 8px;
+    background: var(--accent-1);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.7em;
+    white-space: nowrap;
+    margin-bottom: 5px;
+    opacity: 0;
+    animation: fadeIn 0.2s ease forwards;
+}
+
+.metric-label {
+    font-size: 0.65em;
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric-value {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.price-change {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.price-change.positive {
+    background: rgba(52, 211, 153, 0.1);
+    color: #34D399;
+}
+
+.price-change.positive::before {
+    content: "↑";
+}
+
+.price-change.negative {
+    background: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+}
+
+.price-change.negative::before {
+    content: "↓";
+}
+
+.trade-volume {
+    color: #8B5CF6;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.trade-volume::before {
+    content: "$";
+    opacity: 0.7;
+    font-size: 0.9em;
+}
+
+.trade-count {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.8em;
+}
+
+.buys {
+    color: #34D399;
+}
+
+.sells {
+    color: #EF4444;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 5px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .trading-stats {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .trading-metric:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Mobile responsiveness */
+@media screen and (max-width: 480px) {
+    .trading-stats {
+        padding: 8px;
+        gap: 6px;
+    }
+
+    .trading-metric {
+        padding: 4px;
+        min-width: 70px;
+    }
+
+    .metric-label {
+        font-size: 0.6em;
+    }
+
+    .metric-value {
+        font-size: 0.75em;
+    }
+}

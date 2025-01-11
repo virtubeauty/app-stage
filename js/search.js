@@ -135,6 +135,7 @@ function showError(message) {
     }
 }
 
+
 // Initialize search functionality
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');

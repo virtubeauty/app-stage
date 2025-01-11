@@ -21,6 +21,47 @@ function createAgentCard(agent, type = 'prototype', votingData = null) {
     const downvotes = votingData ? formatNumber(votingData.downvoteCount) : '0';
     const ratio = votingData ? `${Math.round(votingData.upvoteRatio * 100)}%` : '0%';
 
+
+    if ((type === 'sentient' || type === 'favorites') && agent.tokenAddress) {
+        DexScreenerAPI.fetchTokenData(agent.tokenAddress)
+            .then(tokenData => {
+                const tradingData = tokenData[agent.tokenAddress.toLowerCase()];
+                if (tradingData) {
+                    const tradingStatsHtml = `
+            <div class="trading-stats">
+    <div class="trading-metric" data-tooltip="24 Hour Trading Volume">
+      <span class="metric-label">Volume</span>
+      <span class="metric-value trade-volume">${DexScreenerAPI.formatNumber(tradingData.volume.h24)}</span>
+    </div>
+    <div class="trading-metric" data-tooltip="24 Hour Price Change">
+      <span class="metric-label">Change</span>
+      <span class="metric-value price-change ${tradingData.priceChange.h24 >= 0 ? 'positive' : 'negative'}">
+        ${DexScreenerAPI.formatPriceChange(tradingData.priceChange.h24)}
+      </span>
+    </div>
+    <div class="trading-metric" data-tooltip="Buy/Sell Transactions">
+      <span class="metric-label">Trades</span>
+      <div class="trade-count">
+        <span class="buys">${tradingData.txns.h24.buys}</span>
+        <span>/</span>
+        <span class="sells">${tradingData.txns.h24.sells}</span>
+      </div>
+    </div>
+  </div>
+          `;
+
+                    const container = document.querySelector(`[data-agent-id="${agent.id}"] .trading-stats-container`);
+                    if (container) {
+                        container.innerHTML = tradingStatsHtml;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error updating trading stats:', error);
+            });
+    }
+
+
     return `
         <div class="agent-card" data-agent-id="${agent.id}">
             <div class="agent-header">
@@ -46,6 +87,10 @@ function createAgentCard(agent, type = 'prototype', votingData = null) {
                 <div class="stat">💎 ${value}</div>
                 <div class="stat">⏰ ${formatTimeAgo(agent.createdAt)}</div>
             </div>
+            
+            <div class="trading-stats-container">
+        <!-- Trading stats will be injected here -->
+      </div>
 
             <div class="social-links">
                 ${agent.socials?.TELEGRAM ? `
@@ -125,7 +170,7 @@ function createAgentCard(agent, type = 'prototype', votingData = null) {
             </button>
             <span class="vote-ratio">${ratio}</span>
         </div>
-        <button class="view-details-btn" onclick="window.agentDetails.show('${address}', '${agent.walletAddress}', '${truncatedName}', '${agent.symbol}', '${agent.id}')">
+        <button class="view-details-btn" onclick="window.agentDetails.show('${address}', '${agent.walletAddress}', '${truncatedName}', '${agent.symbol}', '${agent.id}', '${agent.status}','${agent.createdAt}')">
                 <span class="details-icon">📊</span>
                 View Details
          </button>
@@ -177,6 +222,7 @@ class AgentDetails {
                         
                         <div class="chart-section">
                             <iframe class="chart-container" frameborder="0"></iframe>
+                            <div class="prototype-chart-container"></div>
                         </div>
                         <div class="holders-section">
                             <h4 class="holders-title">Top Holders</h4>
@@ -219,7 +265,7 @@ class AgentDetails {
             return await response.json();
         } catch (error) {
             console.error('Error fetching holders:', error);
-            return { data: [] };
+            return {data: []};
         }
     }
 
@@ -265,14 +311,30 @@ class AgentDetails {
         }).join('');
     }
 
-    async show(tokenAddress, agentWalletAddress, agentName, agentSymbol, agentId) {
+    async show(tokenAddress, agentWalletAddress, agentName, agentSymbol, agentId, agentStatus, agentCreatedAt) {
         // Update modal title with agent name and symbol
         const modalTitle = this.modal.querySelector('.details-header h3');
         modalTitle.innerHTML = `${agentName} <span class="agent-symbol">$${agentSymbol}</span>`;
+   
+        // Get chart containers
+        const protoChartContainer = this.modal.querySelector('.prototype-chart-container');
+        const sentiChartContainer = this.modal.querySelector('.chart-container');
 
-        // Update chart
-        const chartUrl = `https://www.geckoterminal.com/base/pools/${tokenAddress}?embed=1&info=0&swaps=0&grayscale=0&light_chart=0`;
-        this.modal.querySelector('.chart-container').src = chartUrl;
+        // Hide both containers initially
+        protoChartContainer.style.display = 'none';
+        sentiChartContainer.style.display = 'none';
+
+        // Handle chart display based on agent status
+        if (agentStatus === 'UNDERGRAD') {
+            // Show prototype chart
+            protoChartContainer.style.display = 'block';
+            await this.renderPrototypeChart(protoChartContainer, tokenAddress, agentCreatedAt);
+        } else {
+            // Show sentient chart
+            sentiChartContainer.style.display = 'block';
+            this.renderSentientChart(sentiChartContainer, tokenAddress);
+        }
+
 
         // Fetch and update influence metrics
         const influenceMetrics = await this.fetchInfluenceMetrics(agentId);
@@ -287,10 +349,55 @@ class AgentDetails {
         document.body.style.overflow = 'hidden';
     }
 
+    // Helper method for rendering prototype chart
+    async renderPrototypeChart(container, tokenAddress, createdAt) {
+        container.innerHTML = ''; // Clear existing content
+
+        // Create canvas container
+        const canvasContainer = document.createElement('div');
+        canvasContainer.className = 'chart-canvas-container';
+        container.appendChild(canvasContainer);
+
+        // Add loading overlay
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.className = 'loading-overlay';
+        loadingOverlay.textContent = 'Loading chart data...';
+        container.appendChild(loadingOverlay);
+
+        try {
+            const chartHandler = new ChartHandler(canvasContainer);
+            const chartData = await chartHandler.fetchChartData(tokenAddress, createdAt);
+
+            if (chartData && chartData.length > 0) {
+                chartHandler.drawChart(chartData);
+            } else {
+                container.innerHTML = '<div class="no-data">No chart data available</div>';
+            }
+        } catch (error) {
+            console.error('Error rendering prototype chart:', error);
+            container.innerHTML = '<div class="error">Failed to load chart data</div>';
+        } finally {
+            loadingOverlay.remove();
+        }
+    }
+
+    // Helper method for rendering sentient chart
+    renderSentientChart(container, tokenAddress) {
+        container.src = `https://www.geckoterminal.com/base/pools/${tokenAddress}?embed=1&info=0&swaps=0&grayscale=0&light_chart=0`;
+
+        //container.appendChild(iframe);
+    }
+
     close() {
         this.modal.classList.remove('active');
         document.body.style.overflow = '';
-        this.modal.querySelector('.chart-container').src = '';
+
+        // Clear both chart containers
+        const protoChartContainer = this.modal.querySelector('.prototype-chart-container');
+        const sentiChartContainer = this.modal.querySelector('.chart-container');
+        protoChartContainer.innerHTML = '';
+        sentiChartContainer.innerHTML = '';
+        sentiChartContainer.src = '';
 
         // Reset influence metrics
         ['impressions', 'engagements', 'followers', 'smartFollowers', 'mindshare'].forEach(id => {
