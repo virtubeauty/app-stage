@@ -38,9 +38,10 @@ async function handleSearch() {
             searchQuery.textContent = searchTerm;
             searchResultsGrid.innerHTML = '<div class="no-results">No results found</div>';
             searchResultsContainer.classList.add('active');
+            this.toggleMainContent(false);
             return;
         }
-
+        this.toggleMainContent(false);
         // Get all agent IDs
         const agentIds = data.data.map(agent => agent.id);
 
@@ -78,7 +79,7 @@ async function handleSearch() {
 
             searchQuery.textContent = searchTerm;
             searchResultsGrid.innerHTML = data.data
-                .map(agent => createAgentCard(agent, 'search', votingMap.get(agent.id)))
+                .map(agent => createAgentCard(agent, 'search', votingMap.get(agent.id), true))
                 .join('');
 
             // Then fetch and update flag counts
@@ -123,7 +124,26 @@ function clearSearch() {
     const searchResultsContainer = document.querySelector('.search-results-container');
     searchInput.value = '';
     searchResultsContainer.classList.remove('active');
+
+    toggleMainContent(true);
 }
+
+function toggleMainContent(show) {
+    // Elements to toggle
+    const elements = [
+        document.querySelector('.filters-container'),
+        document.querySelector('.agent-grid'),
+        document.querySelector('.pagination')
+    ];
+
+    elements.forEach(element => {
+        if (element) {
+            element.style.display = show ? '' : 'none';
+        }
+    });
+}
+
+
 
 function showError(message) {
     const searchResultsContainer = document.querySelector('.search-results-container');
@@ -138,21 +158,40 @@ function showError(message) {
 
 // Initialize search functionality
 document.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.getElementById('searchInput');
-    const clearSearchBtn = document.querySelector('.clear-search');
 
-    // Add debounced search
-    searchInput.addEventListener('input', debounce(handleSearch, 500));
+    // Set up a mutation observer to watch for sidebar creation
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.addedNodes.length) {
+                // Check if the sidebar has been added
+                if (document.querySelector('.sidebar-search')) {
+                    const searchInput = document.getElementById('searchInput');
+                    const clearSearchBtn = document.querySelector('.clear-search');
 
-    // Add clear search button handler
-    if (clearSearchBtn) {
-        clearSearchBtn.addEventListener('click', clearSearch);
-    }
+                    // Add debounced search
+                    searchInput.addEventListener('input', debounce(handleSearch, 500));
 
-    // Add enter key handler
-    searchInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-            handleSearch();
-        }
+                    // Add clear search button handler
+                    if (clearSearchBtn) {
+                        clearSearchBtn.addEventListener('click', clearSearch);
+                    }
+
+                    // Add enter key handler
+                    searchInput.addEventListener('keypress', (event) => {
+                        if (event.key === 'Enter') {
+                            handleSearch();
+                        }
+                    });
+                    observer.disconnect();
+                }
+            }
+        });
     });
+
+    // Start observing the body for changes
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+   
 });

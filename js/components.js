@@ -1,12 +1,11 @@
 // components.js
-function createAgentCard(agent, type = 'prototype', votingData = null) {
+function createAgentCard(agent, type = 'prototype', votingData = null, isSearch = false) {
     const isSentient = type === 'sentient';
     let value;
 
     const rawValue = agent.virtualTokenValue * state.prices['virtual-protocol'];
     value = formatValue(rawValue);
 
-    // Updated address logic to handle both sentient and prototype agents
     const address = (isSentient || agent.status === 'AVAILABLE' || agent.status === 'ACTIVATING')
         ? agent.tokenAddress
         : agent.preToken;
@@ -16,38 +15,37 @@ function createAgentCard(agent, type = 'prototype', votingData = null) {
         ? `https://app.virtuals.io/prototypes/${address}`
         : `https://app.virtuals.io/virtuals/${agent.id}`;
 
-    // Format voting numbers
     const upvotes = votingData ? formatNumber(votingData.upvoteCount) : '0';
     const downvotes = votingData ? formatNumber(votingData.downvoteCount) : '0';
     const ratio = votingData ? `${Math.round(votingData.upvoteRatio * 100)}%` : '0%';
 
 
-    if ((type === 'sentient' || type === 'favorites') && agent.tokenAddress) {
+    if ((type === 'sentient' || type === 'favorites' || isSearch) && agent.tokenAddress) {
         DexScreenerAPI.fetchTokenData(agent.tokenAddress)
             .then(tokenData => {
                 const tradingData = tokenData[agent.tokenAddress.toLowerCase()];
                 if (tradingData) {
                     const tradingStatsHtml = `
-            <div class="trading-stats">
-    <div class="trading-metric" data-tooltip="24 Hour Trading Volume">
-      <span class="metric-label">Volume</span>
-      <span class="metric-value trade-volume">${DexScreenerAPI.formatNumber(tradingData.volume.h24)}</span>
-    </div>
-    <div class="trading-metric" data-tooltip="24 Hour Price Change">
-      <span class="metric-label">Change</span>
-      <span class="metric-value price-change ${tradingData.priceChange.h24 >= 0 ? 'positive' : 'negative'}">
-        ${DexScreenerAPI.formatPriceChange(tradingData.priceChange.h24)}
-      </span>
-    </div>
-    <div class="trading-metric" data-tooltip="Buy/Sell Transactions">
-      <span class="metric-label">Trades</span>
-      <div class="trade-count">
-        <span class="buys">${tradingData.txns.h24.buys}</span>
-        <span>/</span>
-        <span class="sells">${tradingData.txns.h24.sells}</span>
-      </div>
-    </div>
-  </div>
+                        <div class="trading-stats">
+                <div class="trading-metric" data-tooltip="24 Hour Trading Volume">
+                  <span class="metric-label">Volume</span>
+                  <span class="metric-value trade-volume">${DexScreenerAPI.formatNumber(tradingData.volume.h24)}</span>
+                </div>
+                <div class="trading-metric" data-tooltip="24 Hour Price Change">
+                  <span class="metric-label">Change</span>
+                  <span class="metric-value price-change ${tradingData.priceChange.h24 >= 0 ? 'positive' : 'negative'}">
+                    ${DexScreenerAPI.formatPriceChange(tradingData.priceChange.h24)}
+                  </span>
+                </div>
+                <div class="trading-metric" data-tooltip="Buy/Sell Transactions">
+                  <span class="metric-label">Trades</span>
+                  <div class="trade-count">
+                    <span class="buys">${tradingData.txns.h24.buys}</span>
+                    <span>/</span>
+                    <span class="sells">${tradingData.txns.h24.sells}</span>
+                  </div>
+                </div>
+              </div>
           `;
 
                     const container = document.querySelector(`[data-agent-id="${agent.id}"] .trading-stats-container`);
@@ -60,7 +58,6 @@ function createAgentCard(agent, type = 'prototype', votingData = null) {
                 console.error('Error updating trading stats:', error);
             });
     }
-
 
     return `
         <div class="agent-card" data-agent-id="${agent.id}">
@@ -83,14 +80,23 @@ function createAgentCard(agent, type = 'prototype', votingData = null) {
             </div>
 
             <div class="agent-stats">
-                <div class="stat">👤 ${(agent.holderCount || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} holders</div>
-                <div class="stat">💎 ${value}</div>
-                <div class="stat">⏰ ${formatTimeAgo(agent.createdAt)}</div>
+                <div class="stat">
+                    <div class="stat-title">Holders</div>
+                    <div class="stat-value">${(agent.holderCount || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-title">MC</div>
+                    <div class="stat-value">${value}</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-title">Date</div>
+                    <div class="stat-value">${formatTimeAgo(agent.createdAt)}</div>
+                </div>
             </div>
             
             <div class="trading-stats-container">
-        <!-- Trading stats will be injected here -->
-      </div>
+                <!-- Trading stats will be injected here -->
+            </div>
 
             <div class="social-links">
                 ${agent.socials?.TELEGRAM ? `
@@ -312,10 +318,25 @@ class AgentDetails {
     }
 
     async show(tokenAddress, agentWalletAddress, agentName, agentSymbol, agentId, agentStatus, agentCreatedAt) {
-        // Update modal title with agent name and symbol
+        this.resetModalState();
+        // Show modal immediately with loading state
         const modalTitle = this.modal.querySelector('.details-header h3');
         modalTitle.innerHTML = `${agentName} <span class="agent-symbol">$${agentSymbol}</span>`;
-   
+
+        this.modal.querySelector('.holders-list').innerHTML = `
+            <div class="loading-skeleton">
+                <div class="skeleton-holder"></div>
+                <div class="skeleton-holder"></div>
+                <div class="skeleton-holder"></div>
+                <div class="skeleton-holder"></div>
+                <div class="skeleton-holder"></div>
+            </div>
+        `;
+
+        // Show modal immediately
+        this.modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+
         // Get chart containers
         const protoChartContainer = this.modal.querySelector('.prototype-chart-container');
         const sentiChartContainer = this.modal.querySelector('.chart-container');
@@ -324,30 +345,57 @@ class AgentDetails {
         protoChartContainer.style.display = 'none';
         sentiChartContainer.style.display = 'none';
 
-        // Handle chart display based on agent status
-        if (agentStatus === 'UNDERGRAD') {
-            // Show prototype chart
-            protoChartContainer.style.display = 'block';
-            await this.renderPrototypeChart(protoChartContainer, tokenAddress, agentCreatedAt);
-        } else {
-            // Show sentient chart
-            sentiChartContainer.style.display = 'block';
-            this.renderSentientChart(sentiChartContainer, tokenAddress);
-        }
+        // Load all data asynchronously
+        Promise.all([
+            // Load chart
+            (async () => {
+                if (agentStatus === 'UNDERGRAD') {
+                    protoChartContainer.style.display = 'block';
+                    await this.renderPrototypeChart(protoChartContainer, tokenAddress, agentCreatedAt);
+                } else {
+                    sentiChartContainer.style.display = 'block';
+                    this.renderSentientChart(sentiChartContainer, tokenAddress);
+                }
+            })(),
 
+            // Load influence metrics
+            (async () => {
+                try {
+                    const influenceMetrics = await this.fetchInfluenceMetrics(agentId);
+                    if (influenceMetrics) {
+                        this.updateInfluenceMetrics(influenceMetrics);
+                        metricsSection.style.display = 'flex';
+                    } else {
+                        // Hide metrics section if no data
+                        const metricsSection = this.modal.querySelector('.influence-metrics');
+                        metricsSection.style.display = 'none';
+                    }
+                } catch (error) {
+                    if (error.status === 404) {
+                        // Hide metrics section on 404
+                        const metricsSection = this.modal.querySelector('.influence-metrics');
+                        metricsSection.style.display = 'none';
+                    } else {
+                        console.error('Error fetching metrics:', error);
+                    }
+                }
+            })(),
 
-        // Fetch and update influence metrics
-        const influenceMetrics = await this.fetchInfluenceMetrics(agentId);
-        this.updateInfluenceMetrics(influenceMetrics);
-
-        // Fetch and render holders
-        const holdersData = await this.fetchHolders(tokenAddress);
-        this.renderHolders(holdersData.data || [], agentWalletAddress);
-
-        // Show modal
-        this.modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
+            // Load holders
+            (async () => {
+                const holdersData = await this.fetchHolders(tokenAddress);
+                this.renderHolders(holdersData.data || [], agentWalletAddress);
+            })()
+        ]).catch(error => {
+            console.error('Error loading details:', error);
+            // Handle errors gracefully - maybe show an error state
+            this.modal.querySelector('.details-content').innerHTML += `
+                <div class="error-message">
+                    Some data failed to load. Please try again later.
+                </div>
+            `;
+        });
+    };
 
     // Helper method for rendering prototype chart
     async renderPrototypeChart(container, tokenAddress, createdAt) {
@@ -383,9 +431,47 @@ class AgentDetails {
 
     // Helper method for rendering sentient chart
     renderSentientChart(container, tokenAddress) {
-        container.src = `https://www.geckoterminal.com/base/pools/${tokenAddress}?embed=1&info=0&swaps=0&grayscale=0&light_chart=0`;
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        const themeType = currentTheme == 'light' ? 1 : 0;
+        container.src = `https://www.geckoterminal.com/base/pools/${tokenAddress}?embed=1&info=0&swaps=0&grayscale=0&light_chart=${themeType}`;
 
         //container.appendChild(iframe);
+    }
+
+    resetModalState() {
+        // Reset visibility of all sections
+        const metricsSection = this.modal.querySelector('.influence-metrics');
+        metricsSection.style.display = 'flex'; // Reset to default display type
+
+        // Reset holders section
+        const holdersSection = this.modal.querySelector('.holders-list');
+        holdersSection.innerHTML = `
+            <div class="loading-skeleton">
+                <div class="skeleton-holder"></div>
+                <div class="skeleton-holder"></div>
+                <div class="skeleton-holder"></div>
+                <div class="skeleton-holder"></div>
+                <div class="skeleton-holder"></div>
+            </div>
+        `;
+
+        // Reset chart containers
+        const protoChartContainer = this.modal.querySelector('.prototype-chart-container');
+        const sentiChartContainer = this.modal.querySelector('.chart-container');
+
+        if (protoChartContainer) {
+            protoChartContainer.style.display = 'none';
+            protoChartContainer.innerHTML = '';
+        }
+
+        if (sentiChartContainer) {
+            sentiChartContainer.style.display = 'none';
+            sentiChartContainer.src = '';
+        }
+
+        // Remove any error messages
+        const errorMessages = this.modal.querySelectorAll('.error-message');
+        errorMessages.forEach(msg => msg.remove());
     }
 
     close() {
