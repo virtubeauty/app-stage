@@ -8,7 +8,7 @@ const API_CONFIG = {
             'sort[0]': 'virtualTokenValue:desc',
             'sort[1]': 'createdAt:desc',
             'populate[0]': 'image',
-            'pagination[pageSize]': '30'
+            'pagination[pageSize]': '12'
         }
     },
     latest: {
@@ -19,7 +19,7 @@ const API_CONFIG = {
             'sort[0]': 'createdAt:desc',
             'sort[1]': 'createdAt:desc',
             'populate[0]': 'image',
-            'pagination[pageSize]': '30'
+            'pagination[pageSize]': '12'
         }
     },
     sentient: {
@@ -31,7 +31,7 @@ const API_CONFIG = {
             'sort[0]': 'totalValueLocked:desc',
             'sort[1]': 'createdAt:desc',
             'populate[0]': 'image',
-            'pagination[pageSize]': '30'
+            'pagination[pageSize]': '12'
         }
     },
     favorites: {

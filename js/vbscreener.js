@@ -47,6 +47,39 @@ class VbScreenerAPI {
         return result;
     }
 
+
+    //static async fetchTokenData(contractAddresses) {
+    //    if (!Array.isArray(contractAddresses)) {
+    //        contractAddresses = [contractAddresses];
+    //    }
+    //    console.log(contractAddresses);
+    //    // Check cache first
+    //    const uncachedAddresses = contractAddresses.filter(addr => !this.cache.has(addr.toLowerCase()));
+
+    //    if (uncachedAddresses.length > 0) {
+    //        const baseUrl = `${API_CONFIG.virtubeautyapi.baseUrl}/api/prototype/by-token-address/${contractAddresses}`;
+    //        try {
+    //            const response = await fetch(`${baseUrl}`);
+    //            const data = await response.json();
+
+    //            return data;
+    //        } catch (error) {
+    //            console.error('Error fetching VBScreener data:', error);
+    //        }
+    //    }
+
+    //    // Return data for all requested addresses
+    //    const result = {};
+    //    contractAddresses.forEach(addr => {
+    //        const data = this.cache.get(addr.toLowerCase());
+    //        if (data) {
+    //            result[addr.toLowerCase()] = data;
+    //        }
+    //    });
+
+    //    return result;
+    //}
+
     static formatNumber(num) {
         if (!num) return '0';
         if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';

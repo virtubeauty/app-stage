@@ -93,6 +93,7 @@ class SidebarMenu {
                 const tab = item.dataset.tab;
                 this.handleTabChange(tab);
                 this.closeMobileSidebar();
+                clearSearch();
             });
         });
 

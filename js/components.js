@@ -35,10 +35,10 @@ function createAgentCard(agent, type = 'prototype', isSearch = false) {
                 </div>
                 <div class="trading-metric" data-tooltip="Buy/Sell Transactions">
                   <span class="metric-label">Trades</span>
-                  <div class="trade-count">
+                  <div class="trade-count" style='font-size:13px'>
                     <span class="buys">${tradingData.txns.h24.buys}</span>
                     <span>/</span>
-                    <span class="sells">${tradingData.txns.h24.sells}</span>
+                    <span class="sells" style='font-size:13px'>${tradingData.txns.h24.sells}</span>
                   </div>
                 </div>
               </div>
@@ -240,37 +240,41 @@ class AgentDetails {
                         <h3>Token Details</h3>
                         <button class="details-close">×</button>
                     </div>
-                    <div class="influence-metrics">
-                        <div class="metric-item">
-                            <span class="metric-label">Impressions (7d)</span>
-                            <span class="metric-value" id="impressions">-</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">Engagements (7d)</span>
-                            <span class="metric-value" id="engagements">-</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">Followers</span>
-                            <span class="metric-value" id="followers">-</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">Smart Followers</span>
-                            <span class="metric-value" id="smartFollowers"></span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">Mindshare (7d)</span>
-                            <span class="metric-value" id="mindshare">%</span>
-                        </div>
-                    </div>
                     <div class="details-body">
-                        
-                        <div class="chart-section">
-                            <iframe class="chart-container" frameborder="0"></iframe>
-                            <div class="prototype-chart-container"></div>
+                        <div class="dev-section">
+                            <div id="devData"></div>
                         </div>
-                        <div class="holders-section">
-                            <h4 class="holders-title">Top Holders</h4>
-                            <div class="holders-list"></div>
+                        <div class="detail-main-content">
+                            <div class="chart-section">
+                                <iframe class="chart-container" frameborder="0"></iframe>
+                                <div class="prototype-chart-container"></div>
+                            </div>
+                            <div class="holders-section">
+                                <h4 class="holders-title">Top Holders</h4>
+                                <div class="holders-list"></div>
+                            </div>
+                        </div>
+                        <div class="influence-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">Impressions (7d)</span>
+                                <span class="metric-value" id="impressions">-</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Engagements (7d)</span>
+                                <span class="metric-value" id="engagements">-</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Followers</span>
+                                <span class="metric-value" id="followers">-</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Smart Followers</span>
+                                <span class="metric-value" id="smartFollowers">-</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Mindshare (7d)</span>
+                                <span class="metric-value" id="mindshare">-</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -355,6 +359,70 @@ class AgentDetails {
         }).join('');
     }
 
+    async fetchDevData(agentId) {
+        try {
+            const response = await fetch(`https://localhost:7162/api/prototype/${agentId}`);
+            if (!response.ok) throw new Error('Failed to fetch dev data');
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching dev data:', error);
+            return null;
+        }
+    }
+
+    renderDevData(data) {
+        if (!data) return;
+
+        const formatDate = (dateString) => {
+            return new Date(dateString).toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        };
+        var ethUsd= state.prices['ethereum'];
+        const devDataHtml = `
+            <table class="dev-table">
+                <tr>
+                    <th>Dev Wallet</th>
+                    <td class="agent-address" onclick="copyAddress(this, ${data.devAddress})"> 
+                    <span data-ca=${data.devAddress}>${data.devAddress}</span>
+                        <div class="copy-tooltip">Copied!</div></td>
+                    <th>Token Address</th>
+                    <td class="agent-address" onclick="copyAddress(this, ${data.tokenAddress})"> 
+                    <span data-ca=${data.tokenAddress}>${data.tokenAddress}</span>
+                        <div class="copy-tooltip">Copied!</div></td>
+                </tr>
+                <tr>
+                    <th>Wallet Created</th>
+                    <td>${formatDate(data.devWalletBaseCreatedDate)}</td>
+                    <th>Base Balance</th>
+                    <td>${data.devWalletBaseEtherBalance} ETH ($${(data.devWalletBaseEtherBalance * ethUsd).toFixed(2)})</td>
+                </tr>
+                <tr>
+                    <th>Ethereum Balance</th>
+                    <td>${data.devWalletEthereumEtherBalance} ETH ($${(data.devWalletEthereumEtherBalance * ethUsd).toFixed(2) })</td>
+                    <th>Bought Virtual</th>
+                    <td>${data.boughtVirtual}</td>
+                </tr>
+                <tr>
+                    <th>Received Token</th>
+                    <td>${data.receivedToken.split('.')[0]} (${(formatPercent(data.receivedToken))}%)</td>
+                    <th>Block Number</th>
+                    <td>${data.blockNumber}</td>
+                </tr>
+            </table>
+        `;
+
+        const devDataContainer = document.getElementById('devData');
+        if (devDataContainer) {
+            devDataContainer.innerHTML = devDataHtml;
+        }
+    }
+
+
     async show(tokenAddress, agentWalletAddress, agentName, agentSymbol, agentId, agentStatus, agentCreatedAt) {
         this.resetModalState();
         // Show modal immediately with loading state
@@ -385,6 +453,18 @@ class AgentDetails {
 
         // Load all data asynchronously
         Promise.all([
+            // Load dev data
+            (async () => {
+                const devContainer = document.getElementById('devData');
+                const devData = await this.fetchDevData(agentId);
+                if (devData) {
+                    this.renderDevData(devData);
+                }
+                else {
+                    devContainer.innerHTML = '';
+                }
+               
+            })(),
             // Load chart
             (async () => {
                 if (agentStatus === 'UNDERGRAD') {
@@ -418,7 +498,6 @@ class AgentDetails {
                     }
                 }
             })(),
-
             // Load holders
             (async () => {
                 const holdersData = await this.fetchHolders(tokenAddress);
