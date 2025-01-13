@@ -369,7 +369,7 @@ class AgentDetails {
 
     async fetchDevData(agentId) {
         try {
-            const response = await fetch(`https://localhost:7162/api/prototype/${agentId}`);
+            const response = await fetch(`${API_CONFIG.virtubeautyapi.baseUrl}/api/prototype/${agentId}`);
             if (!response.ok) throw new Error('Failed to fetch dev data');
             return await response.json();
         } catch (error) {
@@ -548,7 +548,7 @@ class AgentDetails {
             }
         } catch (error) {
             console.error('Error rendering prototype chart:', error);
-            container.innerHTML = '<div class="error">Failed to load chart data</div>';
+            container.innerHTML = '<div class="error">Chart will coming </div>';
         } finally {
             loadingOverlay.remove();
         }
