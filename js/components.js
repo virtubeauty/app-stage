@@ -329,7 +329,15 @@ class AgentDetails {
     }
 
     updateInfluenceMetrics(metrics) {
-        if (!metrics) return;
+        if (!metrics) {
+            document.getElementById('impressions').textContent = '-';
+            document.getElementById('engagements').textContent = '-';
+            document.getElementById('followers').textContent = '-';
+            document.getElementById('smartFollowers').textContent = '-';
+            document.getElementById('mindshare').textContent = '-';
+
+            return;
+        }
 
         const data = metrics.data;
         const formatNumber = (num) => new Intl.NumberFormat().format(num);
@@ -461,7 +469,7 @@ class AgentDetails {
                     this.renderDevData(devData);
                 }
                 else {
-                    devContainer.innerHTML = '';
+                 //   devContainer.innerHTML = '';
                 }
                
             })(),
@@ -482,17 +490,17 @@ class AgentDetails {
                     const influenceMetrics = await this.fetchInfluenceMetrics(agentId);
                     if (influenceMetrics) {
                         this.updateInfluenceMetrics(influenceMetrics);
-                        metricsSection.style.display = 'flex';
+                      //  metricsSection.style.display = 'flex';
                     } else {
                         // Hide metrics section if no data
                         const metricsSection = this.modal.querySelector('.influence-metrics');
-                        metricsSection.style.display = 'none';
+                       // metricsSection.style.display = 'none';
                     }
                 } catch (error) {
                     if (error.status === 404) {
                         // Hide metrics section on 404
                         const metricsSection = this.modal.querySelector('.influence-metrics');
-                        metricsSection.style.display = 'none';
+                       // metricsSection.style.display = 'none';
                     } else {
                         console.error('Error fetching metrics:', error);
                     }
