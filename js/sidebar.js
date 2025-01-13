@@ -16,10 +16,7 @@ class SidebarMenu {
             <div class="sidebar ${this.isCollapsed ? 'collapsed' : ''}">
                 <div class="sidebar-header">
                     <img src="assets/logo.png" alt="VirtuBeauty" class="sidebar-logo">
-                    <span class="sidebar-title">VirtuBeauty</span>
-                    <button class="sidebar-toggle">
-                        <span class="toggle-icon"><<</span>
-                    </button>
+                    <span class="sidebar-title">VirtuBeauty</span>                
                 </div>
                 <div class="sidebar-search">
                     <div class="search-input-wrapper">
