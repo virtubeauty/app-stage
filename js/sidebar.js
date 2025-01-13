@@ -66,16 +66,16 @@ class SidebarMenu {
 
     setupEventListeners() {
         const sidebar = document.querySelector('.sidebar');
-        const toggleBtn = document.querySelector('.sidebar-toggle');
+       // const toggleBtn = document.querySelector('.sidebar-toggle');
         const mobileToggle = document.querySelector('.mobile-toggle');
         const overlay = document.querySelector('.sidebar-overlay');
         const navItems = document.querySelectorAll('.nav-item');
         const searchInput = document.querySelector('.sidebar-search .search-input');
 
-        // Sidebar toggle
-        toggleBtn.addEventListener('click', () => {
-            this.toggleSidebar();
-        });
+        //// Sidebar toggle
+        //toggleBtn.addEventListener('click', () => {
+        //    this.toggleSidebar();
+        //});
 
         // Mobile toggle
         mobileToggle.addEventListener('click', () => {
