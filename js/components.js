@@ -395,31 +395,32 @@ class AgentDetails {
             <table class="dev-table">
                 <tr>
                     <th>Dev Wallet</th>
-                    <td class="agent-address" onclick="copyAddress(this, ${data.devAddress})"> 
-                    <span data-ca=${data.devAddress}>${data.devAddress}</span>
+                    <td onclick="copyAddress(this, ${data.devAddress})" style='cursor:pointer;'> 
+                    <span data-ca=${data.devAddress}>${data.devAddress} 📋</span>
                         <div class="copy-tooltip">Copied!</div></td>
                     <th>Token Address</th>
-                    <td class="agent-address" onclick="copyAddress(this, ${data.tokenAddress})"> 
-                    <span data-ca=${data.tokenAddress}>${data.tokenAddress}</span>
+                    <td onclick="copyAddress(this, ${data.tokenAddress})" style='cursor:pointer;'> 
+                    <span data-ca=${data.tokenAddress}>${data.tokenAddress} 📋</span>
                         <div class="copy-tooltip">Copied!</div></td>
                 </tr>
                 <tr>
                     <th>Wallet Created</th>
                     <td>${formatDate(data.devWalletBaseCreatedDate)}</td>
-                    <th>Base Balance</th>
-                    <td>${data.devWalletBaseEtherBalance} ETH ($${(data.devWalletBaseEtherBalance * ethUsd).toFixed(2)})</td>
+                    <th>Block Number</th>
+                    <td>${data.blockNumber}</td>                    
                 </tr>
                 <tr>
                     <th>Ethereum Balance</th>
                     <td>${data.devWalletEthereumEtherBalance} ETH ($${(data.devWalletEthereumEtherBalance * ethUsd).toFixed(2) })</td>
-                    <th>Bought Virtual</th>
-                    <td>${data.boughtVirtual}</td>
+                    <th>Base Balance</th>
+                    <td>${data.devWalletBaseEtherBalance} ETH ($${(data.devWalletBaseEtherBalance * ethUsd).toFixed(2)})</td>
+                   
                 </tr>
                 <tr>
                     <th>Received Token</th>
                     <td>${data.receivedToken.split('.')[0]} (${(formatPercent(data.receivedToken))}%)</td>
-                    <th>Block Number</th>
-                    <td>${data.blockNumber}</td>
+                    <th>Bought Virtual</th>
+                    <td>${data.boughtVirtual}</td>
                 </tr>
             </table>
         `;
