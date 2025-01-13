@@ -1,5 +1,5 @@
 // components.js
-function createAgentCard(agent, type = 'prototype', votingData = null, isSearch = false) {
+function createAgentCard(agent, type = 'prototype', isSearch = false) {
     const isSentient = type === 'sentient';
     let value;
 
@@ -15,12 +15,8 @@ function createAgentCard(agent, type = 'prototype', votingData = null, isSearch 
         ? `https://app.virtuals.io/prototypes/${address}`
         : `https://app.virtuals.io/virtuals/${agent.id}`;
 
-    const upvotes = votingData ? formatNumber(votingData.upvoteCount) : '0';
-    const downvotes = votingData ? formatNumber(votingData.downvoteCount) : '0';
-    const ratio = votingData ? `${Math.round(votingData.upvoteRatio * 100)}%` : '0%';
-
-
-    if ((type === 'sentient' || type === 'favorites' || isSearch) && agent.tokenAddress) {
+   
+    if ((type === 'sentient' || isSearch) && agent.status !== 'UNDERGRAD' && agent.tokenAddress) {
         DexScreenerAPI.fetchTokenData(agent.tokenAddress)
             .then(tokenData => {
                 const tradingData = tokenData[agent.tokenAddress.toLowerCase()];
@@ -59,6 +55,49 @@ function createAgentCard(agent, type = 'prototype', votingData = null, isSearch 
             });
     }
 
+    if (agent.status === 'UNDERGRAD' && agent.preToken) {
+        console.log('test')
+        VbScreenerAPI.fetchTokenData(agent.preToken)
+            .then(tokenData => {
+                const tradingData = tokenData[agent.preToken.toLowerCase()];
+                if (tradingData) {
+                    const tradingStatsHtml = `
+                        <div class="trading-stats">
+                <div class="trading-metric" data-tooltip="24 Hour Trading Volume">
+                  <span class="metric-label">Volume</span>
+                  <span class="metric-value trade-volume">${VbScreenerAPI.formatNumber(tradingData.volume)}</span>
+                </div>
+                <div class="trading-metric" data-tooltip="24 Hour Price Change">
+                  <span class="metric-label">Change</span>
+                  <span class="metric-value price-change ${tradingData.priceChange> 0 ? 'positive' : 'negative'}">
+                    ${VbScreenerAPI.formatPriceChange(tradingData.priceChange)}
+                  </span>
+                </div>
+                <div class="trading-metric" data-tooltip="Buy/Sell Transactions">
+                  <span class="metric-label">Trades</span>
+                  <div class="trade-count">
+                    <span class="buys">${tradingData.txns.h24.buys}</span>
+                    <span>/</span>
+                    <span class="sells">${tradingData.txns.h24.sells}</span>
+                  </div>
+                </div>
+              </div>
+          `;
+
+                const container = document.querySelector(`[data-agent-id="${agent.id}"] .trading-stats-container`);
+                if (container) {
+                    container.innerHTML = tradingStatsHtml;
+                }
+                }
+            })
+            .catch(error => {
+                console.error('Error updating trading stats:', error);
+            });
+    }
+
+
+
+
     return `
         <div class="agent-card" data-agent-id="${agent.id}">
             <div class="agent-header">
@@ -84,7 +123,7 @@ function createAgentCard(agent, type = 'prototype', votingData = null, isSearch 
                     <div class="stat-title">Holders</div>
                     <div class="stat-value">${(agent.holderCount || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</div>
                 </div>
-                <div class="stat">
+                <div class="stat"  data-tooltip="Market Cap">
                     <div class="stat-title">MC</div>
                     <div class="stat-value">${value}</div>
                 </div>
@@ -160,11 +199,11 @@ function createAgentCard(agent, type = 'prototype', votingData = null, isSearch 
             <div class="voting-controls">
             <button class="vote-button upvote" onclick="window.voting.handleVote('${agent.id}', window.voting.VOTE_TYPES.UPVOTE)">
                 <span>👍</span>
-                <span class="upvote-count">${upvotes}</span>
+                <span class="upvote-count">0</span>
             </button>
             <button class="vote-button downvote" onclick="window.voting.handleVote('${agent.id}', window.voting.VOTE_TYPES.DOWNVOTE)">
                 <span>👎</span>
-                <span class="downvote-count">${downvotes}</span>
+                <span class="downvote-count">0</span>
             </button>
             <button class="vote-button flag" onclick="window.voting.showFlagDialog('${agent.id}')">
                 <span>🚩</span>
@@ -174,7 +213,6 @@ function createAgentCard(agent, type = 'prototype', votingData = null, isSearch 
                 <span>📋</span>
                 <span>Flags</span>
             </button>
-            <span class="vote-ratio">${ratio}</span>
         </div>
         <button class="view-details-btn" onclick="window.agentDetails.show('${address}', '${agent.walletAddress}', '${truncatedName}', '${agent.symbol}', '${agent.id}', '${agent.status}','${agent.createdAt}')">
                 <span class="details-icon">📊</span>

@@ -24,7 +24,7 @@ class SidebarMenu {
                 <div class="sidebar-search">
                     <div class="search-input-wrapper">
                         <span class="search-icon">🔍</span>
-                        <input type="text" class="search-input" id="searchInput" placeholder="Search...">
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search All Agents...">
                     </div>
                 </div>
                 <nav class="sidebar-nav">

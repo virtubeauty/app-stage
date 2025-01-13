@@ -198,6 +198,16 @@ function updateFlagCount(itemId, count) {
     });
 }
 
+// Update voting count in UI
+function updateVotingCount(itemId, type, count) {
+    const voteButtons = document.querySelectorAll(`[data-agent-id="${itemId}"] .vote-button.${type} .${type}-count`);
+    voteButtons.forEach(button => {
+        if (button) {
+            button.textContent = formatNumber(count || 0);
+        }
+    });
+}
+
 // Show flag dialog
 function showFlagDialog(itemId) {
     if (!checkPremiumAccess()) return;
@@ -452,6 +462,39 @@ async function initializeFlagCounts(agentIds) {
     });
 }
 
+// Initialize flag counts
+async function initializeVotingCounts(agentIds) {
+    if (!agentIds || agentIds.length === 0) return;
+
+    try {
+        const params = new URLSearchParams();
+        agentIds.forEach(id => params.append('itemIds', id));
+
+        const response = await fetch(`${API_CONFIG.virtubeautyapi.baseUrl}/api/voting/batch-vote-counts?${params}`);
+        console.log('Vote Counts API Response:', response);
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Vote Counts Data:', data);
+
+            data.forEach(({ itemId, upvoteCount, downvoteCount }) => {
+                updateVotingCount(itemId, 'upvote', upvoteCount || 0);
+                updateVotingCount(itemId, 'downvote', downvoteCount || 0);
+            });
+
+            return data;
+        }
+    } catch (error) {
+        console.error('Error initializing vote counts:', error);
+    }
+
+    // Set default values if fetch fails
+    agentIds.forEach(id => {
+        flagCountCache.set(id, 0);
+        updateFlagCount(id, 0);
+    });
+}
+
 // Helper function to escape HTML
 function escapeHtml(unsafe) {
     if (!unsafe) return '';
@@ -479,6 +522,7 @@ window.voting = {
     updateVoteSummary,
     fetchFlagDetails,
     initializeFlagCounts,
+    initializeVotingCounts,
     fetchBatchFlagCounts,
     VOTE_TYPES,
     getVotingApiUrl,

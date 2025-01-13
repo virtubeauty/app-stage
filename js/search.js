@@ -42,73 +42,83 @@ async function handleSearch() {
             return;
         }
         this.toggleMainContent(false);
-        // Get all agent IDs
-        const agentIds = data.data.map(agent => agent.id);
 
-        // Get voting data first
-        let votingResults = [];
-        try {
-            const params = new URLSearchParams();
-            agentIds.forEach(id => params.append('itemIds', id));
-
-            const votingResponse = await fetch(`${API_CONFIG.virtubeautyapi.baseUrl}/api/voting/batch-vote-counts?${params}`);
-            if (votingResponse.ok) {
-                votingResults = await votingResponse.json();
-            }
-        } catch (error) {
-            console.error('Error fetching voting data:', error);
-            votingResults = agentIds.map(() => null);
-        }
-
-        // Create voting data map
-        const votingMap = new Map();
-        data.data.forEach((agent, index) => {
-            votingMap.set(agent.id, votingResults[index] || {
-                upvoteCount: 0,
-                downvoteCount: 0,
-                upvoteRatio: 0
-            });
-        });
-
-        // Get flag counts
-        let flagCountsMap = new Map();
-        try {
-            // First, render the results with initial 0 flag counts
-            const searchResultsGrid = searchResultsContainer.querySelector('.search-results-grid');
+        const searchResultsGrid = searchResultsContainer.querySelector('.search-results-grid');
             const searchQuery = searchResultsContainer.querySelector('.search-query');
 
             searchQuery.textContent = searchTerm;
             searchResultsGrid.innerHTML = data.data
-                .map(agent => createAgentCard(agent, 'search', votingMap.get(agent.id), true))
+                .map(agent => createAgentCard(agent, 'search', true))
                 .join('');
 
-            // Then fetch and update flag counts
-            const flagParams = new URLSearchParams();
-            agentIds.forEach(id => flagParams.append('itemIds', id));
+        // Get all agent IDs
+        const agentIds = data.data.map(agent => agent.id);
+        await window.voting.initializeFlagCounts(agentIds);
+        await window.voting.initializeVotingCounts(agentIds);
+        //// Get voting data first
+        //let votingResults = [];
+        //try {
+        //    const params = new URLSearchParams();
+        //    agentIds.forEach(id => params.append('itemIds', id));
 
-            const flagCountsResponse = await fetch(`${API_CONFIG.virtubeautyapi.baseUrl}/api/voting/batch-flag-counts?${flagParams}`);
-            if (flagCountsResponse.ok) {
-                const flagCountsData = await flagCountsResponse.json();
-                console.log('Flag Counts API Response:', flagCountsData);
+        //    const votingResponse = await fetch(`${API_CONFIG.virtubeautyapi.baseUrl}/api/voting/batch-vote-counts?${params}`);
+        //    if (votingResponse.ok) {
+        //        votingResults = await votingResponse.json();
+        //    }
+        //} catch (error) {
+        //    console.error('Error fetching voting data:', error);
+        //    votingResults = agentIds.map(() => null);
+        //}
 
-                // Update flagCountsMap with the actual data
-                flagCountsData.forEach(({ itemId, flagCount }) => {
-                    flagCountsMap.set(itemId, flagCount);
-                });
+        //// Create voting data map
+        //const votingMap = new Map();
+        //data.data.forEach((agent, index) => {
+        //    votingMap.set(agent.id, votingResults[index] || {
+        //        upvoteCount: 0,
+        //        downvoteCount: 0,
+        //        upvoteRatio: 0
+        //    });
+        //});
 
-                // Update the UI with actual flag counts
-                flagCountsData.forEach(({ itemId, flagCount }) => {
-                    const flagElements = document.querySelectorAll(`[data-agent-id="${itemId}"] .vote-button.flag .flag-count`);
-                    flagElements.forEach(element => {
-                        element.textContent = formatNumber(flagCount);
-                    });
-                });
-            } else {
-                console.error('Failed to fetch flag counts:', await flagCountsResponse.text());
-            }
-        } catch (error) {
-            console.error('Error handling flag counts:', error);
-        }
+        //// Get flag counts
+        //let flagCountsMap = new Map();
+        //try {
+        //    // First, render the results with initial 0 flag counts
+        //    const searchResultsGrid = searchResultsContainer.querySelector('.search-results-grid');
+        //    const searchQuery = searchResultsContainer.querySelector('.search-query');
+
+        //    searchQuery.textContent = searchTerm;
+        //    searchResultsGrid.innerHTML = data.data
+        //        .map(agent => createAgentCard(agent, 'search', votingMap.get(agent.id), true))
+        //        .join('');
+
+        //    // Then fetch and update flag counts
+        //    const flagParams = new URLSearchParams();
+        //    agentIds.forEach(id => flagParams.append('itemIds', id));
+
+        //    const flagCountsResponse = await fetch(`${API_CONFIG.virtubeautyapi.baseUrl}/api/voting/batch-flag-counts?${flagParams}`);
+        //    if (flagCountsResponse.ok) {
+        //        const flagCountsData = await flagCountsResponse.json();
+        //        console.log('Flag Counts API Response:', flagCountsData);
+
+        //        // Update flagCountsMap with the actual data
+        //        flagCountsData.forEach(({ itemId, flagCount }) => {
+        //            flagCountsMap.set(itemId, flagCount);
+        //        });
+
+        //        // Update the UI with actual flag counts
+        //        flagCountsData.forEach(({ itemId, flagCount }) => {
+        //            const flagElements = document.querySelectorAll(`[data-agent-id="${itemId}"] .vote-button.flag .flag-count`);
+        //            flagElements.forEach(element => {
+        //                element.textContent = formatNumber(flagCount);
+        //            });
+        //        });
+        //    } else {
+        //        console.error('Failed to fetch flag counts:', await flagCountsResponse.text());
+        //    }
+        //} catch (error) {
+        //    console.error('Error handling flag counts:', error);
+        //}
 
         // Show search results
         searchResultsContainer.classList.add('active');

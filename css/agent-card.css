@@ -153,7 +153,7 @@
     }
 
 .stat-value {
-    font-size: 1.1em;
+    font-size: 1em;
     font-weight: 600;
     color: var(--text-primary);
 }
@@ -190,12 +190,6 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--text-secondary);
-}
-
-.metric-value {
-    font-size: 1.1em;
-    font-weight: 600;
-    color: var(--text-primary);
 }
 
 .price-change.positive {
@@ -342,4 +336,51 @@
     .social-links {
         justify-content: center;
     }
+}
+
+
+
+.trading-metric:hover {
+    transform: translateY(-2px);
+    background: rgba(var(--accent-1-rgb), 0.05);
+}
+
+.trading-metric:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 8px;
+    background: var(--accent-1);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.7em;
+    white-space: nowrap;
+    margin-bottom: 5px;
+    opacity: 0;
+    animation: fadeIn 0.2s ease forwards;
+}
+
+
+.stat:hover {
+    transform: translateY(-2px);
+    background: rgba(var(--accent-1-rgb), 0.05);
+}
+
+.stat:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 8px;
+    background: var(--accent-1);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.7em;
+    white-space: nowrap;
+    margin-bottom: 5px;
+    opacity: 0;
+    animation: fadeIn 0.2s ease forwards;
 }
