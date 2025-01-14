@@ -10,7 +10,7 @@ function createAgentCard(agent, type = 'prototype', isSearch = false) {
         ? agent.tokenAddress
         : agent.preToken;
 
-    const truncatedName = truncateText(agent.name, 100);
+    const truncatedName = truncateText(agent.name, 30);
     const virtualLink = agent.status === 'UNDERGRAD'
         ? `https://app.virtuals.io/prototypes/${address}`
         : `https://app.virtuals.io/virtuals/${agent.id}`;
