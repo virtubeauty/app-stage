@@ -42,6 +42,13 @@ class SidebarMenu {
                         <span class="nav-text">Favorites</span>
                         <span class="tab-count" id="favoritesCount">0</span>
                     </div>
+                   <div class="external-links-section">
+                    <a href="https://claude.ai/chat/54d49ea0-8303-46b5-a871-6bf43e8bdf54" target="_blank" class="nav-item-external" data-title="External Link">
+                        <span class="nav-icon">🔗</span>
+                        <span class="nav-text">Whitepaper</span>
+                    </a>
+                </div>
+                </a>
                 </nav>
             </div>
             <div class="sidebar-overlay"></div>
